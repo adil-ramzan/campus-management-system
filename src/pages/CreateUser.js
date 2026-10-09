@@ -1,14 +1,21 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { API_URL } from "../config";
+import { PortalPage } from "../components/PortalLayout";
+import { Alert, Button, Card, Field, FormActions, Input, Select } from "../components/ui";
+
+const ROLES = ["admin", "staff", "student"];
 
 const CreateUser = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  // A link may preselect the role, for example /admin/create-user?role=staff.
+  const requestedRole = searchParams.get("role");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
-    role: "student",
+    role: ROLES.includes(requestedRole) ? requestedRole : "student",
     course: "",
     session: "",
     semester: "",
@@ -75,128 +82,97 @@ const CreateUser = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto my-10 bg-white p-6 shadow-md rounded-lg">
-      <h2 className="text-2xl font-bold mb-4">Create New User</h2>
-      {error && <p className="text-red-500 mb-4">{error}</p>}
-      {success && <p className="text-green-500 mb-4">{success}</p>}
+    <PortalPage
+      title="Create User"
+      description="Add an administrator, staff member or student account."
+      width="narrow"
+    >
+      <Card>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {error && <Alert tone="error">{error}</Alert>}
+          {success && <Alert tone="success">{success}</Alert>}
 
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label className="block font-medium">Name:</label>
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            className="w-full border px-3 py-2 rounded"
-            required
-          />
-        </div>
+          <div role="group" aria-labelledby="account-details" className="space-y-5">
+            <h2 id="account-details" className="text-base font-semibold text-ink">
+              Account details
+            </h2>
+            <Field label="Name">
+              <Input type="text" name="name" value={formData.name} onChange={handleChange} required />
+            </Field>
 
-        <div className="mb-4">
-          <label className="block font-medium">Email:</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full border px-3 py-2 rounded"
-            required
-          />
-        </div>
+            <Field label="Email">
+              <Input type="email" name="email" value={formData.email} onChange={handleChange} required />
+            </Field>
 
-        <div className="mb-4">
-          <label className="block font-medium">Password:</label>
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            className="w-full border px-3 py-2 rounded"
-            required
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block font-medium">Role:</label>
-          <select
-            name="role"
-            value={formData.role}
-            onChange={handleChange}
-            className="w-full border px-3 py-2 rounded"
-            required
-          >
-            <option value="admin">Admin</option>
-            <option value="staff">Staff</option>
-            <option value="student">Student</option>
-          </select>
-        </div>
-
-        {formData.role === "student" && (
-          <>
-            <div className="mb-4">
-              <label className="block font-medium">Course:</label>
-              <select
-                name="course"
-                value={formData.course}
+            <Field label="Password">
+              <Input
+                type="password"
+                name="password"
+                autoComplete="new-password"
+                value={formData.password}
                 onChange={handleChange}
-                className="w-full border px-3 py-2 rounded"
                 required
-              >
-                <option value="">Select Course</option>
-                <option value="BSSE">BS Software Engineering</option>
-                <option value="BSCS">BS Computer Science</option>
-              </select>
+              />
+            </Field>
+
+            <Field label="Role">
+              <Select name="role" value={formData.role} onChange={handleChange} required>
+                <option value="admin">Admin</option>
+                <option value="staff">Staff</option>
+                <option value="student">Student</option>
+              </Select>
+            </Field>
+          </div>
+
+          {formData.role === "student" && (
+            <div role="group" aria-labelledby="academic-details" className="space-y-5 border-t border-line pt-6">
+              <h2 id="academic-details" className="text-base font-semibold text-ink">
+                Academic details
+              </h2>
+              <Field label="Course">
+                <Select name="course" value={formData.course} onChange={handleChange} required>
+                  <option value="">Select Course</option>
+                  <option value="BSSE">BS Software Engineering</option>
+                  <option value="BSCS">BS Computer Science</option>
+                </Select>
+              </Field>
+
+              <Field label="Session">
+                <Select name="session" value={formData.session} onChange={handleChange} required>
+                  <option value="">Select Session</option>
+                  <option value="20-24">2020-2024</option>
+                  <option value="21-25">2021-2025</option>
+                  <option value="22-26">2022-2026</option>
+                  <option value="23-27">2023-2027</option>
+                  <option value="24-28">2024-2028</option>
+                </Select>
+              </Field>
+
+              {formData.session && formData.session !== "20-24" && (
+                <Field label="Semester">
+                  <Select name="semester" value={formData.semester} onChange={handleChange} required>
+                    <option value="">{`Select Semester (${formData.semester})`}</option>
+                    {formData.session === "21-25" && <option value="8th">8th Semester</option>}
+                    {formData.session === "22-26" && <option value="6th">6th Semester</option>}
+                    {formData.session === "23-27" && <option value="4th">4th Semester</option>}
+                    {formData.session === "24-28" && <option value="2nd">2nd Semester</option>}
+                  </Select>
+                </Field>
+              )}
             </div>
+          )}
 
-            <div className="mb-4">
-              <label className="block font-medium">Session:</label>
-              <select
-                name="session"
-                value={formData.session}
-                onChange={handleChange}
-                className="w-full border px-3 py-2 rounded"
-                required
-              >
-                <option value="">Select Session</option>
-                <option value="20-24">2020-2024</option>
-                <option value="21-25">2021-2025</option>
-                <option value="22-26">2022-2026</option>
-                <option value="23-27">2023-2027</option>
-                <option value="24-28">2024-2028</option>
-              </select>
-            </div>
-
-            {formData.session && formData.session !== "20-24" && (
-              <div className="mb-4">
-                <label className="block font-medium">Semester:</label>
-                <select
-                  name="semester"
-                  value={formData.semester}
-                  onChange={handleChange}
-                  className="w-full border px-3 py-2 rounded"
-                  required
-                >
-                  <option value="">{`Select Semester (${formData.semester})`}</option>
-                  {formData.session === "21-25" && <option value="8th">8th Semester</option>}
-                  {formData.session === "22-26" && <option value="6th">6th Semester</option>}
-                  {formData.session === "23-27" && <option value="4th">4th Semester</option>}
-                  {formData.session === "24-28" && <option value="2nd">2nd Semester</option>}
-                </select>
-              </div>
-            )}
-          </>
-        )}
-
-        <button
-          type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 w-full"
-          disabled={loading}
-        >
-          {loading ? "Creating..." : "Create User"}
-        </button>
-      </form>
-    </div>
+          <FormActions>
+            <Button variant="secondary" to="/admin">
+              Cancel
+            </Button>
+            <Button type="submit" loading={loading} loadingLabel="Creating...">
+              Create User
+            </Button>
+          </FormActions>
+        </form>
+      </Card>
+    </PortalPage>
   );
 };
 

@@ -11,18 +11,35 @@
 # production
 /build
 
-# misc
-.DS_Store
+# environment files (only .env.example is tracked)
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-.env.production
+.env.*
+!.env.example
 
+# logs
+logs/
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# local databases, dumps and backups
+*.sqlite
+*.sqlite3
+*.db
+db.json
+*.dump
+*.sql
+*.bak
+*.backup
+backups/
+
+# editor and OS files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
 
 # docker (local only)
 Dockerfile

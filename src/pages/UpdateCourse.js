@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { API_URL } from "../config";
+import { PortalPage } from "../components/PortalLayout";
+import { Alert, Button, Card, Field, FormActions, Input, Select, Textarea } from "../components/ui";
 
 function UpdateCourse() {
   const { courseId } = useParams();
@@ -63,71 +65,44 @@ function UpdateCourse() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
-      <div className="w-full max-w-lg bg-white shadow-lg rounded-lg p-8">
-        <h1 className="text-3xl font-bold text-blue-600 mb-6 text-center">Update Course</h1>
+    <PortalPage
+      title="Update Course"
+      description="Edit the course details or change its instructor."
+      back={{ label: "Manage Courses", to: "/admin/manage-courses" }}
+      width="narrow"
+    >
+      <Card>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {message && <Alert tone={message.type === "success" ? "success" : "error"}>{message.text}</Alert>}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block font-medium text-gray-700 mb-1">Title</label>
-            <input
-              type="text"
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              required
-              className="w-full border border-gray-300 rounded-md p-3 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
+          <Field label="Title">
+            <Input type="text" name="title" value={formData.title} onChange={handleChange} required />
+          </Field>
 
-          <div>
-            <label className="block font-medium text-gray-700 mb-1">Description</label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              required
-              className="w-full border border-gray-300 rounded-md p-3 focus:ring-blue-500 focus:border-blue-500"
-            ></textarea>
-          </div>
+          <Field label="Description">
+            <Textarea name="description" value={formData.description} onChange={handleChange} required />
+          </Field>
 
-          <div>
-            <label className="block font-medium text-gray-700 mb-1">Instructor</label>
-            <select
-              name="instructor"
-              value={formData.instructor}
-              onChange={handleChange}
-              required
-              className="w-full border border-gray-300 rounded-md p-3 focus:ring-blue-500 focus:border-blue-500"
-            >
+          <Field label="Instructor">
+            <Select name="instructor" value={formData.instructor} onChange={handleChange} required>
               <option value="">Select an instructor</option>
               {instructors.map((instructor) => (
                 <option key={instructor._id} value={instructor._id}>
                   {instructor.name}
                 </option>
               ))}
-            </select>
-          </div>
+            </Select>
+          </Field>
 
-          <button
-            type="submit"
-            className="w-full bg-green-600 text-white px-4 py-3 rounded-md hover:bg-green-700 transition duration-200"
-          >
-            Update Course
-          </button>
+          <FormActions>
+            <Button variant="secondary" to="/admin/manage-courses">
+              Cancel
+            </Button>
+            <Button type="submit">Update Course</Button>
+          </FormActions>
         </form>
-
-        {message && (
-          <p
-            className={`mt-4 text-center text-lg font-medium ${
-              message.type === "success" ? "text-green-600" : "text-red-600"
-            }`}
-          >
-            {message.text}
-          </p>
-        )}
-      </div>
-    </div>
+      </Card>
+    </PortalPage>
   );
 }
 

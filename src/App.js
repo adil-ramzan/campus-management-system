@@ -40,8 +40,27 @@ function ScrollManager() {
 
   useEffect(() => {
     const target = hash && document.getElementById(hash.slice(1));
-    if (target) target.scrollIntoView();
-    else window.scrollTo(0, 0);
+    if (target) {
+      target.scrollIntoView();
+      return undefined;
+    }
+    window.scrollTo(0, 0);
+    if (!hash) return undefined;
+
+    // The section may not be rendered yet (dashboards load their data first), so watch
+    // for it briefly and scroll once it appears.
+    const observer = new MutationObserver(() => {
+      const section = document.getElementById(hash.slice(1));
+      if (!section) return;
+      observer.disconnect();
+      section.scrollIntoView();
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    const timeout = setTimeout(() => observer.disconnect(), 5000);
+    return () => {
+      observer.disconnect();
+      clearTimeout(timeout);
+    };
   }, [pathname, hash]);
 
   return null;
@@ -51,7 +70,7 @@ function App() {
   return (
     <Router>
       <ScrollManager />
-      <div className="flex flex-col min-h-screen">
+      <div className="flex flex-col min-h-screen bg-page text-ink">
         <NavBar />
         <main className="flex-grow">
           <Routes>

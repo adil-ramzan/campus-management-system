@@ -1,6 +1,8 @@
 import React, { useContext, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import AuthCard from "../components/AuthCard";
+import { Alert, Button, Field, Input, TextLink } from "../components/ui";
 
 function SignupPage() {
   const { signup } = useContext(AuthContext);
@@ -43,91 +45,71 @@ function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
-      <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-8 shadow-lg">
-        <h1 className="mb-6 text-center text-3xl font-bold text-blue-600">Create a student account</h1>
-
-        {error && (
-          <p role="alert" className="mb-4 rounded-md bg-red-100 p-3 text-center text-red-700">
-            {error}
+    <AuthCard
+      title="Create a student account"
+      description="Sign up to see your courses, assignments and attendance."
+      footer={
+        <>
+          <p>
+            Already have an account? <TextLink to="/login">Sign in</TextLink>
           </p>
-        )}
+          <p className="text-xs">Admin and staff accounts must be provided by an administrator.</p>
+        </>
+      }
+    >
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {error && <Alert tone="error">{error}</Alert>}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <label className="block">
-            <span className="mb-1 block text-sm font-medium text-gray-700">Full name</span>
-            <input
-              type="text"
-              autoComplete="name"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              className="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-              maxLength={100}
-            />
-          </label>
+        <Field label="Full name">
+          <Input
+            type="text"
+            autoComplete="name"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            required
+            maxLength={100}
+          />
+        </Field>
 
-          <label className="block">
-            <span className="mb-1 block text-sm font-medium text-gray-700">Email</span>
-            <input
-              type="email"
-              autoComplete="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              className="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </label>
+        <Field label="Email">
+          <Input
+            type="email"
+            autoComplete="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            required
+          />
+        </Field>
 
-          <label className="block">
-            <span className="mb-1 block text-sm font-medium text-gray-700">Password</span>
-            <input
-              type="password"
-              autoComplete="new-password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              className="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-              minLength={8}
-              maxLength={15}
-            />
-            <span className="mt-1 block text-xs text-gray-500">Use 8 to 15 characters.</span>
-          </label>
+        <Field label="Password" hint="Use 8 to 15 characters.">
+          <Input
+            type="password"
+            autoComplete="new-password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            required
+            minLength={8}
+            maxLength={15}
+          />
+        </Field>
 
-          <label className="block">
-            <span className="mb-1 block text-sm font-medium text-gray-700">Confirm password</span>
-            <input
-              type="password"
-              autoComplete="new-password"
-              value={confirmPassword}
-              onChange={(event) => setConfirmPassword(event.target.value)}
-              className="w-full rounded-lg border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-              minLength={8}
-              maxLength={15}
-            />
-          </label>
+        <Field label="Confirm password">
+          <Input
+            type="password"
+            autoComplete="new-password"
+            value={confirmPassword}
+            onChange={(event) => setConfirmPassword(event.target.value)}
+            required
+            minLength={8}
+            maxLength={15}
+          />
+        </Field>
 
-          <button
-            type="submit"
-            className="w-full rounded-lg bg-blue-600 py-2 text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-            disabled={loading}
-          >
-            {loading ? "Creating account..." : "Sign up"}
-          </button>
-        </form>
-
-        <p className="mt-5 text-center text-sm text-gray-600">
-          Already have an account?{" "}
-          <Link to="/login" className="font-medium text-blue-600 hover:underline">
-            Sign in
-          </Link>
-        </p>
-        <p className="mt-3 text-center text-xs text-gray-500">
-          Admin and staff accounts must be provided by an administrator.
-        </p>
-      </div>
-    </div>
+        <Button type="submit" className="w-full" loading={loading} loadingLabel="Creating account...">
+          Sign up
+        </Button>
+      </form>
+    </AuthCard>
   );
 }
 

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FaTrashAlt } from "react-icons/fa";
+import { MegaphoneIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { API_URL } from "../config";
+import { PortalPage } from "../components/PortalLayout";
+import { Alert, Button, EmptyState, Field, Input, SectionCard, Textarea } from "../components/ui";
 
 function AdminAnnouncements() {
   const [title, setTitle] = useState("");
@@ -60,85 +62,73 @@ function AdminAnnouncements() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center p-6">
-      <div className="w-full max-w-lg bg-white p-6 rounded-lg shadow-md">
-        <h1 className="text-3xl font-bold text-blue-600 text-center mb-6">📢 Create Announcement</h1>
+    <PortalPage
+      title="Announcements"
+      description="Post announcements for students and remove ones that no longer apply."
+      width="wide"
+    >
+      <div className="grid items-start gap-6 lg:grid-cols-5">
+        <SectionCard title="Create Announcement" className="lg:col-span-2">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {message && <Alert tone={message.type === "success" ? "success" : "error"}>{message.text}</Alert>}
 
-        {message && (
-          <p className={`mb-4 text-center font-semibold ${message.type === "success" ? "text-green-600" : "text-red-600"}`}>
-            {message.text}
-          </p>
-        )}
+            <Field label="Title">
+              <Input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required />
+            </Field>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-gray-700 font-medium">Title</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-              className="w-full px-4 py-2 border rounded focus:ring-2 focus:ring-blue-500"
+            <Field label="Content">
+              <Textarea value={content} onChange={(e) => setContent(e.target.value)} required />
+            </Field>
+
+            <Field label="Due Date" hint="The announcement expires on this date.">
+              <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} required />
+            </Field>
+
+            <Button type="submit" className="w-full" loading={loading} loadingLabel="Creating...">
+              Create Announcement
+            </Button>
+          </form>
+        </SectionCard>
+
+        <SectionCard
+          title="All Announcements"
+          description={`${announcements.length} active`}
+          className="lg:col-span-3"
+        >
+          {announcements.length > 0 ? (
+            <ul className="-my-4 divide-y divide-line">
+              {announcements.map((announcement) => (
+                <li key={announcement._id} className="flex items-start justify-between gap-4 py-4">
+                  <div className="min-w-0">
+                    <h3 className="text-sm font-semibold text-ink">{announcement.title}</h3>
+                    <p className="mt-1 break-words text-sm leading-6 text-ink-secondary">{announcement.content}</p>
+                    <p className="mt-1.5 text-xs text-ink-secondary">
+                      Expires on: {new Date(announcement.dueDate).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <Button
+                    variant="dangerQuiet"
+                    size="icon"
+                    className="shrink-0"
+                    onClick={() => handleDelete(announcement._id)}
+                    aria-label={`Delete announcement: ${announcement.title}`}
+                    title="Delete"
+                  >
+                    <TrashIcon className="h-4 w-4" aria-hidden="true" />
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <EmptyState
+              icon={MegaphoneIcon}
+              title="No active announcements."
+              hint="Announcements you create are shown to students until they expire."
             />
-          </div>
-
-          <div>
-            <label className="block text-gray-700 font-medium">Content</label>
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              required
-              className="w-full px-4 py-2 border rounded focus:ring-2 focus:ring-blue-500"
-            ></textarea>
-          </div>
-
-          <div>
-            <label className="block text-gray-700 font-medium">Due Date</label>
-            <input
-              type="date"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
-              required
-              className="w-full px-4 py-2 border rounded focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition"
-            disabled={loading}
-          >
-            {loading ? "Creating..." : "Create Announcement"}
-          </button>
-        </form>
+          )}
+        </SectionCard>
       </div>
-
-      {/* Announcements List */}
-      <div className="w-full max-w-lg mt-6 bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">📢 All Announcements</h2>
-        {announcements.length > 0 ? (
-          <ul className="space-y-4">
-            {announcements.map((announcement) => (
-              <li key={announcement._id} className="border p-4 rounded shadow flex justify-between items-center">
-                <div>
-                  <h3 className="font-semibold text-lg">{announcement.title}</h3>
-                  <p className="text-gray-600">{announcement.content}</p>
-                  <p className="text-sm text-gray-500">Expires on: {new Date(announcement.dueDate).toLocaleDateString()}</p>
-                </div>
-                <button
-                  onClick={() => handleDelete(announcement._id)}
-                  className="bg-red-500 text-white p-2 rounded hover:bg-red-600"
-                >
-                  <FaTrashAlt />
-                </button>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-gray-600 text-center">No active announcements.</p>
-        )}
-      </div>
-    </div>
+    </PortalPage>
   );
 }
 

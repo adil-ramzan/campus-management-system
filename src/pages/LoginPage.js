@@ -1,7 +1,9 @@
 import React, { useState, useContext } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { EnvelopeIcon, LockClosedIcon } from "@heroicons/react/24/outline";
 import { AuthContext } from "../context/AuthContext";
-import { FaUser, FaLock } from "react-icons/fa";
+import AuthCard from "../components/AuthCard";
+import { Alert, Button, Field, IconInput, TextLink } from "../components/ui";
 
 function LoginPage() {
   const { login } = useContext(AuthContext);
@@ -37,70 +39,56 @@ function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white p-6">
-      <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg border border-gray-200">
-
-        <h2 className="text-3xl font-bold text-center text-blue-600 mb-6">🔐 Login</h2>
-
-        {error && <p className="text-red-500 text-center bg-red-100 p-2 rounded-md mb-4">{error}</p>}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-
-          <div className="relative">
-            <FaUser className="absolute left-3 top-3 text-gray-500" />
-            <input
-              type="email"
-              className="w-full px-10 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              placeholder="Enter your email"
-            />
-          </div>
-
-          <div className="relative">
-            <FaLock className="absolute left-3 top-3 text-gray-500" />
-            <input
-              type="password"
-              className="w-full px-10 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
-              value={password}
-              onChange={(e) => {
-                if (e.target.value.length <= 15) {
-                  setPassword(e.target.value);
-                }
-              }}
-              required
-              placeholder="Enter your password"
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full flex items-center justify-center bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition duration-300"
-            disabled={loading}
-          >
-            {loading ? (
-              <span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
-            ) : (
-              "Login"
-            )}
-          </button>
-        </form>
-
-        <div className="text-center mt-4">
-          <p className="text-gray-600">
-            Forgot password? <span className="text-blue-500 hover:underline cursor-pointer">Reset here</span>
+    <AuthCard
+      title="Sign in"
+      description="Use your university account to open your dashboard."
+      footer={
+        <>
+          <p>
+            Don't have an account? <TextLink to="/signup">Sign up</TextLink>
           </p>
-          <p className="text-gray-600 mt-2">
-            Don't have an account?{" "}
-            <Link to="/signup" className="text-green-600 hover:underline">
-              Sign up
-            </Link>
+          <p>
+            Forgot your password? <TextLink to="/contact">Contact the university</TextLink>
           </p>
-        </div>
+        </>
+      }
+    >
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {error && <Alert tone="error">{error}</Alert>}
 
-      </div>
-    </div>
+        <Field label="Email">
+          <IconInput
+            icon={EnvelopeIcon}
+            type="email"
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            placeholder="Enter your email"
+          />
+        </Field>
+
+        <Field label="Password">
+          <IconInput
+            icon={LockClosedIcon}
+            type="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => {
+              if (e.target.value.length <= 15) {
+                setPassword(e.target.value);
+              }
+            }}
+            required
+            placeholder="Enter your password"
+          />
+        </Field>
+
+        <Button type="submit" className="w-full" loading={loading} loadingLabel="Signing in...">
+          Login
+        </Button>
+      </form>
+    </AuthCard>
   );
 }
 

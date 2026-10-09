@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { PencilSquareIcon, TrashIcon, UserGroupIcon, UserPlusIcon } from "@heroicons/react/24/outline";
 import { API_URL } from "../config";
+import { PortalPage } from "../components/PortalLayout";
+import { Button, Card, EmptyState, SearchInput, Select, Table, Td, Th, Tr } from "../components/ui";
 
 function InstructorList() {
   const [instructors, setInstructors] = useState([]);
@@ -49,68 +52,82 @@ function InstructorList() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center p-6">
-      <h1 className="text-4xl font-bold text-blue-700 mb-6">Instructor List</h1>
-
-      <div className="flex flex-col md:flex-row items-center gap-4 w-full max-w-3xl">
-        <input
-          type="text"
-          placeholder="Search instructor..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
-        />
-
-        <select
+    <PortalPage
+      title="Instructors"
+      description="Search teaching staff, edit their accounts or remove them."
+      width="wide"
+      actions={
+        <Button to="/admin/create-user?role=staff" icon={UserPlusIcon}>
+          Add staff
+        </Button>
+      }
+    >
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="sm:max-w-sm sm:flex-1">
+          <SearchInput
+            label="Search instructors"
+            placeholder="Search instructor..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <Select
+          aria-label="Sort instructors"
           onChange={(e) => setSortBy(e.target.value)}
           value={sortBy}
-          className="px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+          className="sm:w-44"
         >
           <option value="name">Sort by Name</option>
           <option value="email">Sort by Email</option>
-        </select>
+        </Select>
+        <p className="text-sm text-ink-secondary sm:ml-auto">
+          {filteredInstructors.length} instructor{filteredInstructors.length === 1 ? "" : "s"}
+        </p>
       </div>
 
-      <div className="w-full max-w-3xl mt-6">
-        {filteredInstructors.length > 0 ? (
-          <div className="bg-white rounded-lg shadow-md overflow-x-auto">
-            <table className="w-full text-left">
-              <thead className="bg-blue-600 text-white">
-                <tr>
-                  <th className="py-3 px-6">Name</th>
-                  <th className="py-3 px-6">Email</th>
-                  <th className="py-3 px-6">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredInstructors.map((inst) => (
-                  <tr key={inst._id} className="border-b hover:bg-gray-100">
-                    <td className="py-3 px-6">{inst.name}</td>
-                    <td className="py-3 px-6">{inst.email}</td>
-                    <td className="py-3 px-6 flex gap-2">
-                      <button
-                        onClick={() => navigate(`/admin/edit-staff/${inst._id}`)}
-                        className="bg-yellow-500 text-white px-3 py-2 rounded-md hover:bg-yellow-600 transition"
-                      >
-                        ✏️ Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(inst._id)}
-                        className="bg-red-600 text-white px-3 py-2 rounded-md hover:bg-red-700 transition"
-                      >
-                        ❌ Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <p className="mt-4 text-gray-600">No instructors found.</p>
-        )}
-      </div>
-    </div>
+      {filteredInstructors.length > 0 ? (
+        <Table caption="Instructors">
+          <thead>
+            <tr>
+              <Th>Name</Th>
+              <Th>Email</Th>
+              <Th className="text-right">Actions</Th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredInstructors.map((inst) => (
+              <Tr key={inst._id}>
+                <Td className="whitespace-nowrap font-medium">{inst.name}</Td>
+                <Td className="text-ink-secondary">{inst.email}</Td>
+                <Td>
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      icon={PencilSquareIcon}
+                      onClick={() => navigate(`/admin/edit-staff/${inst._id}`)}
+                    >
+                      Edit
+                    </Button>
+                    <Button variant="dangerQuiet" size="sm" icon={TrashIcon} onClick={() => handleDelete(inst._id)}>
+                      Delete
+                    </Button>
+                  </div>
+                </Td>
+              </Tr>
+            ))}
+          </tbody>
+        </Table>
+      ) : (
+        <Card>
+          <EmptyState
+            icon={UserGroupIcon}
+            title="No instructors found."
+            hint={search ? "Try a different name or email." : "Staff accounts appear here once they are created."}
+          />
+        </Card>
+      )}
+    </PortalPage>
   );
 }
 

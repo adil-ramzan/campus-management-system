@@ -1,11 +1,13 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { ClipboardDocumentListIcon } from "@heroicons/react/24/outline";
 import { API_URL } from "../config";
+import { PortalPage } from "../components/PortalLayout";
+import { Alert, Button, EmptyState, ErrorState, Field, FileInput, LoadingState, SectionCard, Select } from "../components/ui";
+import { formatDate } from "../components/DashboardUI";
 
 function StudentAssignments() {
-  const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -76,84 +78,68 @@ function StudentAssignments() {
     setSubmitting(false);
   };
 
-  if (loading)
-    return <h1 className="text-blue-500 text-center mt-10">Loading assignments...</h1>;
-  if (loadError)
-    return <h1 className="text-red-500 text-center mt-10">{loadError}</h1>;
-
   return (
-    <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
-      <div className="w-full max-w-3xl bg-white p-6 rounded-lg shadow-md">
-        <h1 className="text-3xl font-bold text-blue-600 text-center mb-6">
-          📌 Your Assignments
-        </h1>
-        <p className="text-center text-gray-700 mb-4">
-          Welcome, <span className="font-semibold">{user?.name}</span>
-        </p>
-
-        {assignments.length > 0 ? (
-          <ul className="space-y-4">
-            {assignments.map((assignment) => (
-              <li key={assignment._id} className="bg-gray-100 p-4 rounded-lg shadow-md hover:shadow-lg transition">
-                <h3 className="text-lg font-semibold text-gray-800">{assignment.title}</h3>
-                <p className="text-gray-600">{assignment.description}</p>
-                <p className="text-gray-500">
-                  📅 Due: {new Date(assignment.dueDate).toLocaleDateString()}
-                </p>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-gray-500 text-center">No assignments available.</p>
-        )}
-
-        <div className="mt-6">
-          <h2 className="text-xl font-semibold text-center">Submit Assignment</h2>
-          {error && <p className="text-red-500 text-center mt-2">{error}</p>}
-
-          <form onSubmit={submitAssignment} className="bg-gray-50 p-6 rounded-lg shadow space-y-4 mt-4">
-            <div>
-              <label className="block text-gray-700">📂 Select Assignment</label>
-              <select
-                value={selectedAssignment}
-                onChange={handleAssignmentSelect}
-                required
-                className="w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300"
-              >
-                <option value="">Choose Assignment</option>
+    <PortalPage
+      title="Your Assignments"
+      description="See what has been set for your courses and hand in your work."
+      back={{ label: "Dashboard", to: "/student" }}
+      width="wide"
+    >
+      {loading ? (
+        <LoadingState label="Loading assignments..." />
+      ) : loadError ? (
+        <ErrorState message={loadError} />
+      ) : (
+        <div className="grid items-start gap-6 lg:grid-cols-5">
+          <SectionCard
+            title="Assignments"
+            description={`${assignments.length} assigned`}
+            className="lg:col-span-3"
+          >
+            {assignments.length > 0 ? (
+              <ul className="-my-4 divide-y divide-line">
                 {assignments.map((assignment) => (
-                  <option key={assignment._id} value={assignment._id}>
-                    {assignment.title}
-                  </option>
+                  <li key={assignment._id} className="py-4">
+                    <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                      <h3 className="text-sm font-semibold text-ink">{assignment.title}</h3>
+                      <p className="text-xs text-ink-secondary">Due: {formatDate(assignment.dueDate)}</p>
+                    </div>
+                    <p className="mt-1 break-words text-sm leading-6 text-ink-secondary">{assignment.description}</p>
+                  </li>
                 ))}
-              </select>
-            </div>
+              </ul>
+            ) : (
+              <EmptyState icon={ClipboardDocumentListIcon} title="No assignments available." />
+            )}
+          </SectionCard>
 
-            <div>
-              <label className="block text-gray-700">📎 Upload File</label>
-              <input
-                type="file"
-                accept=".pdf,.docx,.txt"
-                onChange={handleFileChange}
-                required
-                className="w-full px-4 py-2 border rounded-md focus:ring focus:ring-blue-300"
-              />
-              <p className="text-sm text-gray-500 mt-1">Allowed: PDF, DOCX, TXT (Max: 10MB)</p>
-            </div>
+          <SectionCard title="Submit Assignment" className="lg:col-span-2">
+            <form onSubmit={submitAssignment} className="space-y-5">
+              {error && <Alert tone="error">{error}</Alert>}
 
-            <button
-              type="submit"
-              className={`w-full px-6 py-2 rounded-lg text-white transition ${
-                submitting ? "bg-gray-400 cursor-not-allowed" : "bg-green-500 hover:bg-green-600"
-              }`}
-              disabled={submitting}
-            >
-              {submitting ? "Submitting..." : "Submit Assignment"}
-            </button>
-          </form>
+              <Field label="Select Assignment">
+                <Select value={selectedAssignment} onChange={handleAssignmentSelect} required>
+                  <option value="">Choose Assignment</option>
+                  {assignments.map((assignment) => (
+                    <option key={assignment._id} value={assignment._id}>
+                      {assignment.title}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+
+              <Field label="Upload File" hint="Allowed: PDF, DOCX, TXT (Max: 10MB)">
+                <FileInput accept=".pdf,.docx,.txt" onChange={handleFileChange} required />
+              </Field>
+
+              <Button type="submit" className="w-full" loading={submitting} loadingLabel="Submitting...">
+                Submit Assignment
+              </Button>
+            </form>
+          </SectionCard>
         </div>
-      </div>
-    </div>
+      )}
+    </PortalPage>
   );
 }
 

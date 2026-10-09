@@ -1,11 +1,12 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
+import { ArrowTopRightOnSquareIcon, InboxIcon } from "@heroicons/react/24/outline";
 import { API_URL } from "../config";
+import { PortalPage } from "../components/PortalLayout";
+import { Badge, Button, Card, EmptyState, ErrorState, Field, Input, LoadingState, Textarea } from "../components/ui";
 
 function GradeAssignments() {
-  const { user } = useContext(AuthContext);
   const { assignmentId } = useParams();
   const navigate = useNavigate();
   const [submissions, setSubmissions] = useState([]);
@@ -74,58 +75,66 @@ function GradeAssignments() {
   };
 
 
-  if (loading) return <h1 className="text-blue-500 text-center mt-10">Loading submissions...</h1>;
-  if (error) return <h1 className="text-red-500 text-center mt-10">{error}</h1>;
-
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <h1 className="text-3xl font-bold text-blue-500 mb-4">Grade Assignments</h1>
-      <p>Welcome, {user?.name}</p>
-
-      {submissions.length > 0 ? (
-        <ul className="mt-3">
+    <PortalPage
+      title="Grade Assignments"
+      description="Review each submission, then record a grade and feedback."
+      back={{ label: "Submissions", to: "/staff/submitted-assignments" }}
+    >
+      {loading ? (
+        <LoadingState label="Loading submissions..." />
+      ) : error ? (
+        <ErrorState message={error} />
+      ) : submissions.length > 0 ? (
+        <ul className="space-y-4">
           {submissions.map((submission) => (
-            <li key={submission._id} className="bg-white p-4 rounded shadow mb-2">
-              <h3 className="text-lg font-semibold">{submission.student.name}</h3>
-              <p>Email: {submission.student.email}</p>
-              <a
-                href={submission.fileUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500 underline"
-              >
-                View Submission
-              </a>
+            <Card as="li" key={submission._id} padded={false}>
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4 sm:px-6">
+                <div className="min-w-0">
+                  <h2 className="truncate text-base font-semibold text-ink">{submission.student.name}</h2>
+                  <p className="truncate text-sm text-ink-secondary">{submission.student.email}</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  {submission.grade && <Badge tone="success">Graded: {submission.grade}</Badge>}
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    icon={ArrowTopRightOnSquareIcon}
+                    href={submission.fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    View Submission
+                  </Button>
+                </div>
+              </div>
 
-              <div className="mt-3">
-                <label className="block text-gray-700">Grade</label>
-                <input
-                  type="text"
-                  onChange={(e) => handleGradeChange(submission._id, "grade", e.target.value)}
-                  className="w-full px-4 py-2 border rounded"
-                />
+              <div className="grid gap-5 p-5 sm:grid-cols-4 sm:p-6">
+                <Field label="Grade">
+                  <Input type="text" onChange={(e) => handleGradeChange(submission._id, "grade", e.target.value)} />
+                </Field>
+                <Field label="Feedback" className="sm:col-span-3">
+                  <Textarea rows={2} onChange={(e) => handleGradeChange(submission._id, "feedback", e.target.value)} />
+                </Field>
+                <div className="flex justify-end sm:col-span-4">
+                  <Button
+                    onClick={() => submitGrade(submission._id)}
+                    disabled={submitting}
+                    className="w-full sm:w-auto"
+                  >
+                    {submitting ? "Submitting..." : "Submit Grade"}
+                  </Button>
+                </div>
               </div>
-              <div>
-                <label className="block text-gray-700">Feedback</label>
-                <textarea
-                  onChange={(e) => handleGradeChange(submission._id, "feedback", e.target.value)}
-                  className="w-full px-4 py-2 border rounded"
-                />
-              </div>
-              <button
-                onClick={() => submitGrade(submission._id)}
-                className="mt-3 px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-                disabled={submitting}
-              >
-                {submitting ? "Submitting..." : "Submit Grade"}
-              </button>
-            </li>
+            </Card>
           ))}
         </ul>
       ) : (
-        <p>No submissions yet.</p>
+        <Card>
+          <EmptyState icon={InboxIcon} title="No submissions yet." />
+        </Card>
       )}
-    </div>
+    </PortalPage>
   );
 }
 

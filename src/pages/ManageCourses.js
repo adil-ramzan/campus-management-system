@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { BookOpenIcon, PencilSquareIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { API_URL } from "../config";
+import { PortalPage } from "../components/PortalLayout";
+import { Button, Card, EmptyState, ErrorState, LoadingState, Pagination, Table, Td, Th, Tr } from "../components/ui";
 
 function ManageCourses() {
   const [courses, setCourses] = useState([]);
@@ -43,95 +46,90 @@ function ManageCourses() {
     }
   };
 
-  if (loading)
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <h1 className="text-blue-500 text-2xl font-bold">Loading Courses...</h1>
-      </div>
-    );
-  if (error)
-    return <h1 className="text-red-500 text-center mt-6">{error}</h1>;
-
   const indexOfLastCourse = currentPage * coursesPerPage;
   const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
   const currentCourses = courses.slice(indexOfFirstCourse, indexOfLastCourse);
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <h1 className="text-4xl font-bold text-blue-600 mb-6 text-center">
-        Manage Courses
-      </h1>
+    <PortalPage
+      title="Manage Courses"
+      description="Update course details or remove courses that are no longer offered."
+      width="wide"
+      actions={
+        <Button to="/admin/create-course" icon={PlusIcon}>
+          Create course
+        </Button>
+      }
+    >
+      {loading ? (
+        <LoadingState label="Loading courses..." />
+      ) : error ? (
+        <ErrorState message={error} />
+      ) : courses.length > 0 ? (
+        <>
+          <Table caption="Courses">
+            <thead>
+              <tr>
+                <Th>Course</Th>
+                <Th>Instructor</Th>
+                <Th className="text-right">Actions</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentCourses.map((course) => (
+                <Tr key={course._id}>
+                  <Td className="min-w-[16rem]">
+                    <p className="font-medium text-ink">{course.title}</p>
+                    <p className="mt-0.5 line-clamp-2 max-w-xl text-ink-secondary">{course.description}</p>
+                  </Td>
+                  <Td className="whitespace-nowrap text-ink-secondary">
+                    {course.instructor ? course.instructor.name || "N/A" : "Not assigned"}
+                  </Td>
+                  <Td>
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        icon={PencilSquareIcon}
+                        onClick={() => navigate(`/admin/update-course/${course._id}`)}
+                      >
+                        Update
+                      </Button>
+                      <Button variant="dangerQuiet" size="sm" icon={TrashIcon} onClick={() => handleDelete(course._id)}>
+                        Delete
+                      </Button>
+                    </div>
+                  </Td>
+                </Tr>
+              ))}
+            </tbody>
+          </Table>
 
-      {courses.length > 0 ? (
-        <div className="space-y-6 max-w-4xl mx-auto">
-          {currentCourses.map((course) => (
-            <div
-              key={course._id}
-              className="bg-white p-6 rounded-lg shadow-md flex justify-between items-center gap-4"
-            >
-              <div>
-                <h2 className="text-xl font-semibold text-gray-800">
-                  {course.title}
-                </h2>
-                <p className="text-gray-600">{course.description}</p>
-                {course.instructor && (
-                  <p className="text-sm text-gray-500">
-                    Instructor: {course.instructor.name || "N/A"}
-                  </p>
-                )}
-              </div>
-
-              <div className="flex space-x-3">
-                <button
-                  onClick={() => navigate(`/admin/update-course/${course._id}`)}
-                  className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition"
-                >
-                  Update
-                </button>
-                <button
-                  onClick={() => handleDelete(course._id)}
-                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm text-ink-secondary">
+              Showing {indexOfFirstCourse + 1}–{Math.min(indexOfLastCourse, courses.length)} of {courses.length} course
+              {courses.length === 1 ? "" : "s"}
+            </p>
+            <Pagination
+              page={currentPage}
+              pageCount={Math.ceil(courses.length / coursesPerPage)}
+              onChange={setCurrentPage}
+              label="Course pages"
+            />
+          </div>
+        </>
       ) : (
-        <p className="text-center text-gray-700 text-xl">No courses available.</p>
+        <Card>
+          <EmptyState
+            icon={BookOpenIcon}
+            title="No courses available."
+            hint="Create a course to start enrolling students."
+            to="/admin/create-course"
+            cta="Create a course"
+          />
+        </Card>
       )}
-
-      {courses.length > coursesPerPage && (
-        <div className="flex justify-center mt-6">
-          {Array.from(
-            { length: Math.ceil(courses.length / coursesPerPage) },
-            (_, index) => (
-              <button
-                key={index + 1}
-                onClick={() => setCurrentPage(index + 1)}
-                className={`mx-1 px-4 py-2 rounded-md ${
-                  currentPage === index + 1
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-300 text-gray-800 hover:bg-gray-400"
-                }`}
-              >
-                {index + 1}
-              </button>
-            )
-          )}
-        </div>
-      )}
-
-      <div className="text-center mt-8">
-        <button
-          onClick={() => navigate("/admin")}
-          className="px-5 py-3 bg-gray-700 text-white rounded hover:bg-gray-800 transition"
-        >
-          Back to Dashboard
-        </button>
-      </div>
-    </div>
+    </PortalPage>
   );
 }
 

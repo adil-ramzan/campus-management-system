@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import { ArrowDownTrayIcon, InboxIcon } from "@heroicons/react/24/outline";
 import { API_URL } from "../config";
+import { PortalPage } from "../components/PortalLayout";
+import { Button, Card, EmptyState, ErrorState, LoadingState, Table, Td, Th, Tr } from "../components/ui";
+import { formatDate } from "../components/DashboardUI";
 
 function ViewSubmissions() {
   const { assignmentId } = useParams();
@@ -26,45 +30,57 @@ function ViewSubmissions() {
     fetchSubmissions();
   }, [assignmentId]);
 
-  if (loading) return <h1 className="text-blue-500 text-center mt-10">Loading submissions...</h1>;
-  if (error) return <h1 className="text-red-500 text-center mt-10">{error}</h1>;
-
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
-        <h1 className="text-3xl font-bold text-blue-600 text-center mb-4">📑 Assignment Submissions</h1>
-
-        {submissions.length > 0 ? (
-          <ul className="space-y-4">
+    <PortalPage
+      title="Assignment Submissions"
+      description="Work handed in by students for this assignment."
+      back={{ label: "Back", onClick: () => window.history.back() }}
+      width="wide"
+      actions={<Button to={`/staff/assignments/${assignmentId}/grade`}>Grade assignment</Button>}
+    >
+      {loading ? (
+        <LoadingState label="Loading submissions..." />
+      ) : error ? (
+        <ErrorState message={error} />
+      ) : submissions.length > 0 ? (
+        <Table caption="Assignment submissions">
+          <thead>
+            <tr>
+              <Th>Student</Th>
+              <Th>Submitted on</Th>
+              <Th className="text-right">File</Th>
+            </tr>
+          </thead>
+          <tbody>
             {submissions.map((submission) => (
-              <li key={submission._id} className="bg-gray-100 p-4 rounded-lg shadow-sm">
-                <h2 className="text-lg font-semibold text-gray-800">{submission.student.name}</h2>
-                <p className="text-gray-600">{submission.student.email}</p>
-                <p className="text-gray-700 mt-2">📅 Submitted on: {new Date(submission.submittedAt).toLocaleDateString()}</p>
-
-                <a
-                  href={submission.fileUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition inline-block"
-                >
-                  Download Submission
-                </a>
-              </li>
+              <Tr key={submission._id}>
+                <Td className="min-w-[12rem]">
+                  <p className="font-medium text-ink">{submission.student.name}</p>
+                  <p className="text-ink-secondary">{submission.student.email}</p>
+                </Td>
+                <Td className="whitespace-nowrap text-ink-secondary">{formatDate(submission.submittedAt)}</Td>
+                <Td className="text-right">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    icon={ArrowDownTrayIcon}
+                    href={submission.fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Download Submission
+                  </Button>
+                </Td>
+              </Tr>
             ))}
-          </ul>
-        ) : (
-          <p className="text-gray-500 text-center">No submissions found.</p>
-        )}
-
-        <button
-          onClick={() => window.history.back()}
-          className="mt-6 w-full px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition"
-        >
-          Back
-        </button>
-      </div>
-    </div>
+          </tbody>
+        </Table>
+      ) : (
+        <Card>
+          <EmptyState icon={InboxIcon} title="No submissions found." />
+        </Card>
+      )}
+    </PortalPage>
   );
 }
 

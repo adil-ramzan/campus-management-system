@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { AcademicCapIcon, PencilSquareIcon, UserPlusIcon } from "@heroicons/react/24/outline";
 import { API_URL } from "../config";
+import { PortalPage } from "../components/PortalLayout";
+import { Button, Card, EmptyState, SearchInput, Select, Table, Td, Th, Tr } from "../components/ui";
+
+const notSet = <span className="text-ink-secondary">Not set</span>;
 
 function StudentList() {
   const [students, setStudents] = useState([]);
@@ -14,8 +19,6 @@ function StudentList() {
     const fetchStudents = async () => {
       try {
         const res = await axios.get(`${API_URL}/api/admin/students`, { withCredentials: true });
-
-        console.log("Fetched Students Data:", res.data); //Debugging Log
 
         setStudents(res.data);
         setFilteredStudents(res.data);
@@ -39,69 +42,83 @@ function StudentList() {
   }, [search, sortBy, students]);
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center p-6">
-      <h1 className="text-4xl font-bold text-blue-700 mb-6">Student List</h1>
-
-      <div className="flex flex-col md:flex-row items-center gap-4 w-full max-w-4xl">
-        <input
-          type="text"
-          placeholder="Search student..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
-        />
-
-        <select
+    <PortalPage
+      title="Students"
+      description="Search registered students and edit their accounts."
+      width="wide"
+      actions={
+        <Button to="/admin/create-user?role=student" icon={UserPlusIcon}>
+          Add student
+        </Button>
+      }
+    >
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="sm:max-w-sm sm:flex-1">
+          <SearchInput
+            label="Search students"
+            placeholder="Search student..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <Select
+          aria-label="Sort students"
           onChange={(e) => setSortBy(e.target.value)}
           value={sortBy}
-          className="px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
+          className="sm:w-44"
         >
           <option value="name">Sort by Name</option>
           <option value="email">Sort by Email</option>
-        </select>
+        </Select>
+        <p className="text-sm text-ink-secondary sm:ml-auto">
+          {filteredStudents.length} student{filteredStudents.length === 1 ? "" : "s"}
+        </p>
       </div>
 
-      <div className="w-full max-w-4xl mt-6">
-        {filteredStudents.length > 0 ? (
-          <div className="bg-white rounded-lg shadow-md overflow-x-auto">
-            <table className="w-full text-left">
-              <thead className="bg-blue-600 text-white">
-                <tr>
-                  <th className="py-3 px-6">Name</th>
-                  <th className="py-3 px-6">Email</th>
-                  <th className="py-3 px-6">Course</th>
-                  <th className="py-3 px-6">Session</th>
-                  <th className="py-3 px-6">Semester</th>
-                  <th className="py-3 px-6">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-  {filteredStudents.map((student) => (
-    <tr key={student._id} className="border-b hover:bg-gray-100">
-      <td className="py-3 px-6">{student.name}</td>
-      <td className="py-3 px-6">{student.email}</td>
-      <td className="py-3 px-6">{student.course || "Not Set"}</td>
-      <td className="py-3 px-6">{student.session || "Not Set"}</td>
-      <td className="py-3 px-6">{student.semester || "Not Set"}</td>
-      <td className="py-3 px-6">
-        <button
-          onClick={() => navigate(`/admin/edit-student/${student._id}`)}
-          className="bg-yellow-500 text-white px-3 py-2 rounded-md hover:bg-yellow-600 transition"
-        >
-          ✏️ Edit
-        </button>
-      </td>
-    </tr>
-  ))}
-</tbody>
-
-            </table>
-          </div>
-        ) : (
-          <p className="mt-4 text-gray-600">No students found.</p>
-        )}
-      </div>
-    </div>
+      {filteredStudents.length > 0 ? (
+        <Table caption="Students">
+          <thead>
+            <tr>
+              <Th>Name</Th>
+              <Th>Email</Th>
+              <Th>Course</Th>
+              <Th>Session</Th>
+              <Th>Semester</Th>
+              <Th className="text-right">Actions</Th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredStudents.map((student) => (
+              <Tr key={student._id}>
+                <Td className="whitespace-nowrap font-medium">{student.name}</Td>
+                <Td className="text-ink-secondary">{student.email}</Td>
+                <Td className="whitespace-nowrap">{student.course || notSet}</Td>
+                <Td className="whitespace-nowrap">{student.session || notSet}</Td>
+                <Td className="whitespace-nowrap">{student.semester || notSet}</Td>
+                <Td className="text-right">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    icon={PencilSquareIcon}
+                    onClick={() => navigate(`/admin/edit-student/${student._id}`)}
+                  >
+                    Edit
+                  </Button>
+                </Td>
+              </Tr>
+            ))}
+          </tbody>
+        </Table>
+      ) : (
+        <Card>
+          <EmptyState
+            icon={AcademicCapIcon}
+            title="No students found."
+            hint={search ? "Try a different name or email." : "Students appear here once they are registered."}
+          />
+        </Card>
+      )}
+    </PortalPage>
   );
 }
 

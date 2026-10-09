@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { ClipboardDocumentListIcon } from "@heroicons/react/24/outline";
 import { API_URL } from "../config";
+import { PortalPage } from "../components/PortalLayout";
+import { Alert, Button, Card, ErrorState, Field, FormActions, Input, LoadingState, Select } from "../components/ui";
 
 function StaffAttendance() {
   const { courseId } = useParams();
-  const navigate = useNavigate();
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -51,68 +53,56 @@ function StaffAttendance() {
     }
   };
 
-  if (loading) return <h1 className="text-blue-500 text-center mt-10">Loading...</h1>;
-  if (error) return <h1 className="text-red-500 text-center mt-10">{error}</h1>;
-
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-      <div className="w-full max-w-lg bg-white p-6 rounded-lg shadow-md">
-        <h1 className="text-3xl font-bold text-blue-500 mb-4 text-center">Mark Attendance</h1>
+    <PortalPage
+      title="Mark Attendance"
+      description="Record a student as present or absent for a class date."
+      back={{ label: "Dashboard", to: "/staff" }}
+      width="narrow"
+      actions={
+        <Button variant="secondary" to={`/staff/courses/${courseId}/view-attendance`} icon={ClipboardDocumentListIcon}>
+          View records
+        </Button>
+      }
+    >
+      {loading ? (
+        <LoadingState label="Loading students..." />
+      ) : error ? (
+        <ErrorState message={error} />
+      ) : (
+        <Card className="space-y-5">
+          {message && <Alert tone={message.type === "success" ? "success" : "error"}>{message.text}</Alert>}
 
-        <label className="block text-gray-700 font-medium mb-2">Select Date</label>
-        <input
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          className="w-full px-4 py-2 border rounded mb-4"
-        />
+          <Field label="Select Date">
+            <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+          </Field>
 
-        <label className="block text-gray-700 font-medium mb-2">Select Student</label>
-        <select
-          value={selectedStudent}
-          onChange={(e) => setSelectedStudent(e.target.value)}
-          className="w-full px-4 py-2 border rounded mb-4"
-        >
-          <option value="">-- Choose Student --</option>
-          {students.map((student) => (
-            <option key={student.studentId} value={student.studentId}>
-              {student.name} ({student.email})
-            </option>
-          ))}
-        </select>
+          <Field label="Select Student">
+            <Select value={selectedStudent} onChange={(e) => setSelectedStudent(e.target.value)}>
+              <option value="">-- Choose Student --</option>
+              {students.map((student) => (
+                <option key={student.studentId} value={student.studentId}>
+                  {student.name} ({student.email})
+                </option>
+              ))}
+            </Select>
+          </Field>
 
-        <label className="block text-gray-700 font-medium mb-2">Status</label>
-        <select
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-          className="w-full px-4 py-2 border rounded mb-4"
-        >
-          <option value="present">Present</option>
-          <option value="absent">Absent</option>
-        </select>
+          <Field label="Status">
+            <Select value={status} onChange={(e) => setStatus(e.target.value)}>
+              <option value="present">Present</option>
+              <option value="absent">Absent</option>
+            </Select>
+          </Field>
 
-        <button
-          onClick={() => markAttendance(selectedStudent)}
-          className="w-full px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
-          disabled={!selectedStudent}
-        >
-          Mark Attendance
-        </button>
-
-        {message && (
-          <p className={`mt-4 text-center text-lg font-medium ${message.type === "success" ? "text-green-600" : "text-red-600"}`}>
-            {message.text}
-          </p>
-        )}
-
-        <button
-          onClick={() => navigate("/staff")}
-          className="mt-4 w-full px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition"
-        >
-          Back to Dashboard
-        </button>
-      </div>
-    </div>
+          <FormActions>
+            <Button onClick={() => markAttendance(selectedStudent)} disabled={!selectedStudent}>
+              Mark Attendance
+            </Button>
+          </FormActions>
+        </Card>
+      )}
+    </PortalPage>
   );
 }
 

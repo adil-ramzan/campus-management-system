@@ -1,98 +1,152 @@
-# Getting Started with Create React App
+# Campus Management System (Frontend)
 
-## Backend and authentication
+A React frontend for a university campus management system. It has a public
+website and three role-based portals, for administrators, staff and students,
+covering courses, enrolment, assignments, attendance and announcements.
 
-This repository contains only the frontend. It has no built-in accounts,
-passwords or login shortcuts: every sign-in, sign-up and data request is sent to
-a backend API that you provide and secure yourself. The backend is responsible
-for verifying credentials, issuing the session cookie and enforcing roles
-(`admin`, `staff`, `student`).
+> **Frontend only.** This is a portfolio project. It does not include a backend
+> or a database. Sign-in and all data features need a separate backend API,
+> which is not part of this repository.
 
-Point the frontend at your backend by copying `.env.example` to `.env.local` and
-setting the API base URL:
+## Features
+
+**Public site**
+
+- Home, About, Academics, Administration, Admissions and Contact pages
+- Sign in, and sign up for student accounts
+
+**Admin portal**
+
+- Dashboard with summary figures and charts
+- Create, update and delete courses, and enrol students in them
+- Create staff and student accounts; view, edit and delete them
+- Publish and delete announcements
+
+**Staff portal**
+
+- Dashboard with course, assignment and attendance summaries
+- Course details and student lists
+- Create assignments, view submissions and grade them
+- Mark and review attendance
+
+**Student portal**
+
+- Dashboard with enrolled courses, assignments, attendance and announcements
+- Submit assignments
+- View attendance for each course
+
+**Across the app**
+
+- Routes are protected by role (`admin`, `staff`, `student`)
+- Responsive layout
+
+## Technology stack
+
+- React 19 with Create React App (`react-scripts` 5)
+- React Router 7
+- Axios
+- Chart.js with `react-chartjs-2`
+- Tailwind CSS, loaded from the Tailwind CDN script in `public/index.html`
+- Heroicons
+
+## Prerequisites
+
+- Node.js 20 or later, and npm
+- A running backend API that this frontend can reach (see below)
+
+## Installation
+
+```bash
+git clone https://github.com/adil-ramzan/campus-management-system-frontend.git
+cd campus-management-system-frontend
+npm install
+```
+
+## Environment configuration
+
+The app reads the backend's base URL from `REACT_APP_API_URL`.
 
 ```bash
 cp .env.example .env.local
 ```
 
+Then set the value in `.env.local`, for example:
+
 ```text
-REACT_APP_API_URL=
+REACT_APP_API_URL=http://localhost:5000
 ```
 
-If the variable is left empty, the app falls back to `http://localhost:5000`.
-Requests are sent with cookies (`withCredentials`), so the backend must allow
-credentialed CORS requests from the frontend's origin.
+- If the variable is empty, the app uses `http://localhost:5000`.
+- The value is read at build time, so restart `npm start` or rebuild after
+  changing it.
+- `.env.local` is ignored by Git. Do not commit environment files or
+  credentials.
 
-The signed-in user is held in memory only and nothing is written to browser
-storage, so reloading the page requires signing in again.
+## Backend requirements
 
-Never commit `.env` files or real credentials to this repository.
+The backend is a separate project. This frontend expects it to:
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+- serve its routes under `/api` (`/api/auth`, `/api/admin`, `/api/staff`,
+  `/api/student` and `/api/assignments`);
+- authenticate with a session cookie. Every request is sent with
+  `withCredentials`, so the backend must allow credentialed CORS requests from
+  the frontend's origin;
+- verify credentials and enforce the `admin`, `staff` and `student` roles.
 
-## Available Scripts
+The frontend ships no accounts, passwords or login shortcuts. The signed-in user
+is kept in memory only and nothing is written to browser storage, so reloading
+the page requires signing in again.
 
-In the project directory, you can run:
+### Sample data on the dashboards
 
-### `npm start`
+If a dashboard cannot reach the API at all, it shows generated sample figures
+under a visible "Demo data" notice, so the layout and charts can still be
+previewed. This sample data lives in `src/data/`, is never sent to the API and
+is not used for authentication. Reaching a dashboard still requires signing in
+through the backend.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Development
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+```bash
+npm start
+```
 
-### `npm test`
+Runs the development server at `http://localhost:3000` and reloads on changes.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```bash
+npm test
+```
 
-### `npm run build`
+Runs the Create React App test runner. The project has no test files yet.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Production build
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```bash
+npm run build
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Writes an optimised static build to `build/`, which can be served by any static
+file host. The host must return `index.html` for unknown paths so that
+client-side routes work.
 
-### `npm run eject`
+## Project structure
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```text
+public/            Static assets and the HTML template
+src/
+  components/      Shared layout and UI components
+  context/         Authentication context
+  data/            Programme catalogue and dashboard sample data
+  pages/           Public pages and portal pages
+  config.js        API base URL
+  theme.js         Colour palette
+  App.js           Routes
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Screenshots
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Screenshots have not been added yet.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+<!-- Add images to docs/screenshots/ and reference them here, for example:
+![Admin dashboard](docs/screenshots/admin-dashboard.png)
+-->

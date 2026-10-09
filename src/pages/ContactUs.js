@@ -1,5 +1,8 @@
 import React, { useState } from "react";
-import { FaPhoneAlt, FaEnvelope, FaMapMarkerAlt } from "react-icons/fa";
+import { EnvelopeIcon, MapPinIcon, PhoneIcon } from "@heroicons/react/24/outline";
+import { Alert, Button, Card, Container, Field, Input, PageHero, Textarea, focusRing } from "../components/ui";
+
+const linkClass = `rounded text-primary underline-offset-2 hover:text-primary-hover hover:underline ${focusRing}`;
 
 function ContactUs() {
   const [formData, setFormData] = useState({
@@ -7,87 +10,96 @@ function ContactUs() {
     email: "",
     message: "",
   });
+  const [sent, setSent] = useState(false);
 
   const handleChange = (e) => {
+    setSent(false);
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert("Message sent successfully!");
+    setSent(true);
     setFormData({ name: "", email: "", message: "" });
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
-      <div className="max-w-5xl w-full bg-white shadow-lg rounded-lg overflow-hidden flex flex-col md:flex-row">
-        <div className="w-full md:w-1/2 bg-blue-600 text-white p-8">
-          <h2 className="text-3xl font-bold mb-4">Get in Touch</h2>
-          <p className="text-gray-200 mb-6">
-            Have questions? Feel free to reach out to us anytime!
-          </p>
-          <div className="space-y-4">
-            <div className="flex items-center space-x-3">
-              <FaMapMarkerAlt className="text-xl" />
-              <p>Gomal University, KPK, Pakistan</p>
-            </div>
-            <div className="flex items-center space-x-3">
-              <FaPhoneAlt className="text-xl" />
-              <p>+92 (966) 750-424-29</p>
-            </div>
-            <div className="flex items-center space-x-3">
-              <FaEnvelope className="text-xl" />
-              <p>info@gu.edu.pk</p>
-            </div>
-          </div>
-        </div>
+    <>
+      <PageHero
+        eyebrow="Gomal University"
+        title="Contact"
+        description="Have questions? Feel free to reach out to us anytime!"
+      />
 
-        <div className="w-full md:w-1/2 p-8">
-          <h2 className="text-2xl font-semibold text-gray-700 mb-6">Send a Message</h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-gray-600">Name</label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-2 border rounded focus:ring focus:ring-blue-300"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-600">Email</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-2 border rounded focus:ring focus:ring-blue-300"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-600">Message</label>
-              <textarea
-                name="message"
-                value={formData.message}
-                onChange={handleChange}
-                required
-                rows="4"
-                className="w-full px-4 py-2 border rounded focus:ring focus:ring-blue-300"
-              ></textarea>
-            </div>
-            <button
-              type="submit"
-              className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
-            >
-              Send Message
-            </button>
-          </form>
+      <Container className="py-10 lg:py-14">
+        <div className="grid gap-6 lg:grid-cols-5">
+          <Card as="section" className="self-start lg:col-span-2">
+            <h2 className="text-lg font-semibold text-ink">Get in Touch</h2>
+            <p className="mt-1 text-sm text-ink-secondary">Reach the university by post, phone or email.</p>
+            <dl className="mt-5 space-y-5 text-sm">
+              <div className="flex items-start gap-3">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <MapPinIcon className="h-5 w-5" aria-hidden="true" />
+                </span>
+                <div>
+                  <dt className="font-medium text-ink">Address</dt>
+                  <dd className="mt-0.5 text-ink-secondary">Gomal University, KPK, Pakistan</dd>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <PhoneIcon className="h-5 w-5" aria-hidden="true" />
+                </span>
+                <div>
+                  <dt className="font-medium text-ink">Phone</dt>
+                  <dd className="mt-0.5">
+                    <a href="tel:+92-966-750-424-29" className={linkClass}>
+                      +92 (966) 750-424-29
+                    </a>
+                  </dd>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <EnvelopeIcon className="h-5 w-5" aria-hidden="true" />
+                </span>
+                <div className="min-w-0">
+                  <dt className="font-medium text-ink">Email</dt>
+                  <dd className="mt-0.5">
+                    <a href="mailto:info@gu.edu.pk" className={`break-all ${linkClass}`}>
+                      info@gu.edu.pk
+                    </a>
+                  </dd>
+                </div>
+              </div>
+            </dl>
+          </Card>
+
+          <Card as="section" className="lg:col-span-3">
+            <h2 className="text-lg font-semibold text-ink">Send a Message</h2>
+            <form onSubmit={handleSubmit} className="mt-5 space-y-5">
+              {sent && <Alert tone="success">Message sent successfully!</Alert>}
+              <div className="grid gap-5 sm:grid-cols-2">
+                <Field label="Name">
+                  <Input type="text" name="name" autoComplete="name" value={formData.name} onChange={handleChange} required />
+                </Field>
+                <Field label="Email">
+                  <Input type="email" name="email" autoComplete="email" value={formData.email} onChange={handleChange} required />
+                </Field>
+              </div>
+              <Field label="Message">
+                <Textarea name="message" rows={5} value={formData.message} onChange={handleChange} required />
+              </Field>
+              <div className="flex justify-end">
+                <Button type="submit" className="w-full sm:w-auto">
+                  Send Message
+                </Button>
+              </div>
+            </form>
+          </Card>
         </div>
-      </div>
-    </div>
+      </Container>
+    </>
   );
 }
 
