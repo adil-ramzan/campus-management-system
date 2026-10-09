@@ -150,3 +150,7 @@ Screenshots have not been added yet.
 <!-- Add images to docs/screenshots/ and reference them here, for example:
 ![Admin dashboard](docs/screenshots/admin-dashboard.png)
 -->
+
+## License
+
+This project is for educational and portfolio purposes.
