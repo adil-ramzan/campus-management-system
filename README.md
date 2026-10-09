@@ -1,60 +1,28 @@
-# Campus Management System (Frontend)
+# Campus Management System
 
-A React frontend for a university campus management system. It has a public
-website and three role-based portals, for administrators, staff and students,
-covering courses, enrolment, assignments, attendance and announcements.
-
-> **Frontend only.** This is a portfolio project. It does not include a backend
-> or a database. Sign-in and all data features need a separate backend API,
-> which is not part of this repository.
+A responsive React frontend for a university management system, featuring a public website and dedicated dashboards for administrators, staff, and students.
 
 ## Features
 
-**Public site**
+* **Public website:** Home, About, Academics, Administration, Admissions, and Contact.
+* **Admin dashboard:** Statistics, charts, course management, user management, enrollment, and announcements.
+* **Staff dashboard:** Courses, student lists, assignments, grading, and attendance.
+* **Student dashboard:** Enrolled courses, assignments, attendance, announcements, and progress.
+* **Responsive UI:** Layouts for desktop and mobile screens.
+* **API integration:** Connects to a separate backend for authentication and application data.
 
-- Home, About, Academics, Administration, Admissions and Contact pages
-- Sign in, and sign up for student accounts
+## Tech Stack
 
-**Admin portal**
+* React 19
+* React Router 7
+* JavaScript
+* Tailwind CSS
+* Axios
+* Chart.js
 
-- Dashboard with summary figures and charts
-- Create, update and delete courses, and enrol students in them
-- Create staff and student accounts; view, edit and delete them
-- Publish and delete announcements
+## Getting Started
 
-**Staff portal**
-
-- Dashboard with course, assignment and attendance summaries
-- Course details and student lists
-- Create assignments, view submissions and grade them
-- Mark and review attendance
-
-**Student portal**
-
-- Dashboard with enrolled courses, assignments, attendance and announcements
-- Submit assignments
-- View attendance for each course
-
-**Across the app**
-
-- Routes are protected by role (`admin`, `staff`, `student`)
-- Responsive layout
-
-## Technology stack
-
-- React 19 with Create React App (`react-scripts` 5)
-- React Router 7
-- Axios
-- Chart.js with `react-chartjs-2`
-- Tailwind CSS, loaded from the Tailwind CDN script in `public/index.html`
-- Heroicons
-
-## Prerequisites
-
-- Node.js 20 or later, and npm
-- A running backend API that this frontend can reach (see below)
-
-## Installation
+**Requirements:** Node.js and npm.
 
 ```bash
 git clone https://github.com/adil-ramzan/campus-management-system-frontend.git
@@ -62,95 +30,43 @@ cd campus-management-system-frontend
 npm install
 ```
 
-## Environment configuration
-
-The app reads the backend's base URL from `REACT_APP_API_URL`.
+Configure the backend API:
 
 ```bash
 cp .env.example .env.local
 ```
 
-Then set the value in `.env.local`, for example:
+Set the API URL in `.env.local`:
 
 ```text
 REACT_APP_API_URL=http://localhost:5000
 ```
 
-- If the variable is empty, the app uses `http://localhost:5000`.
-- The value is read at build time, so restart `npm start` or rebuild after
-  changing it.
-- `.env.local` is ignored by Git. Do not commit environment files or
-  credentials.
-
-## Backend requirements
-
-The backend is a separate project. This frontend expects it to:
-
-- serve its routes under `/api` (`/api/auth`, `/api/admin`, `/api/staff`,
-  `/api/student` and `/api/assignments`);
-- authenticate with a session cookie. Every request is sent with
-  `withCredentials`, so the backend must allow credentialed CORS requests from
-  the frontend's origin;
-- verify credentials and enforce the `admin`, `staff` and `student` roles.
-
-The frontend ships no accounts, passwords or login shortcuts. The signed-in user
-is kept in memory only and nothing is written to browser storage, so reloading
-the page requires signing in again.
-
-### Sample data on the dashboards
-
-If a dashboard cannot reach the API at all, it shows generated sample figures
-under a visible "Demo data" notice, so the layout and charts can still be
-previewed. This sample data lives in `src/data/`, is never sent to the API and
-is not used for authentication. Reaching a dashboard still requires signing in
-through the backend.
-
-## Development
+Start the development server:
 
 ```bash
 npm start
 ```
 
-Runs the development server at `http://localhost:3000` and reloads on changes.
-
-```bash
-npm test
-```
-
-Runs the Create React App test runner. The project has no test files yet.
-
-## Production build
+Create a production build:
 
 ```bash
 npm run build
 ```
 
-Writes an optimised static build to `build/`, which can be served by any static
-file host. The host must return `index.html` for unknown paths so that
-client-side routes work.
+## Project Structure
 
-## Project structure
+* `src/components/` — Shared UI components
+* `src/context/` — Authentication context
+* `src/data/` — Programme catalogue and dashboard preview data
+* `src/pages/` — Website pages and dashboards
+* `src/theme.js` — Theme configuration
+* `src/config.js` — API configuration
 
-```text
-public/            Static assets and the HTML template
-src/
-  components/      Shared layout and UI components
-  context/         Authentication context
-  data/            Programme catalogue and dashboard sample data
-  pages/           Public pages and portal pages
-  config.js        API base URL
-  theme.js         Colour palette
-  App.js           Routes
-```
+## Note
 
-## Screenshots
-
-Screenshots have not been added yet.
-
-<!-- Add images to docs/screenshots/ and reference them here, for example:
-![Admin dashboard](docs/screenshots/admin-dashboard.png)
--->
+This is a frontend portfolio project. The backend and database are maintained separately. Authentication and live application data require a configured backend API.
 
 ## License
 
-This project is for educational and portfolio purposes.
+For educational and portfolio purposes.
